@@ -18,6 +18,13 @@ defmodule VinWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/vehicle", VehicleLive.Index, :index
+    live "/vehicle/new", VehicleLive.Index, :new
+    live "/vehicle/:id/edit", VehicleLive.Index, :edit
+
+    live "/vehicle/:id", VehicleLive.Show, :show
+    live "/vehicle/:id/show/edit", VehicleLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

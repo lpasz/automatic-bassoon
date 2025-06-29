@@ -1,0 +1,29 @@
+<.header>
+  Vehicle {@vehicle.id}
+  <:subtitle>This is a vehicle record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/vehicle/#{@vehicle}/show/edit"} phx-click={JS.push_focus()}>
+      <.button>Edit vehicle</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Vin">{@vehicle.vin}</:item>
+  <:item title="Make">{@vehicle.make}</:item>
+  <:item title="Model">{@vehicle.model}</:item>
+  <:item title="Age">{@vehicle.age}</:item>
+</.list>
+
+<.back navigate={~p"/vehicle"}>Back to vehicle</.back>
+
+<.modal :if={@live_action == :edit} id="vehicle-modal" show on_cancel={JS.patch(~p"/vehicle/#{@vehicle}")}>
+  <.live_component
+    module={VinWeb.VehicleLive.FormComponent}
+    id={@vehicle.id}
+    title={@page_title}
+    action={@live_action}
+    vehicle={@vehicle}
+    patch={~p"/vehicle/#{@vehicle}"}
+  />
+</.modal>
