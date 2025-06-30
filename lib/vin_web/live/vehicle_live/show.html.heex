@@ -1,11 +1,6 @@
 <.header>
   Vehicle {@vehicle.id}
   <:subtitle>This is a vehicle record from your database.</:subtitle>
-  <:actions>
-    <.link patch={~p"/vehicle/#{@vehicle}/show/edit"} phx-click={JS.push_focus()}>
-      <.button>Edit vehicle</.button>
-    </.link>
-  </:actions>
 </.header>
 
 <.list>

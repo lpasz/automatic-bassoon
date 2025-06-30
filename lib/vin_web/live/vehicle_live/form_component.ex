@@ -20,9 +20,6 @@ defmodule VinWeb.VehicleLive.FormComponent do
         phx-submit="save"
       >
         <.input field={@form[:vin]} type="text" label="Vin" />
-        <.input field={@form[:make]} type="text" label="Make" />
-        <.input field={@form[:model]} type="text" label="Model" />
-        <.input field={@form[:age]} type="number" label="Age" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Vehicle</.button>
         </:actions>
@@ -51,8 +48,8 @@ defmodule VinWeb.VehicleLive.FormComponent do
     save_vehicle(socket, socket.assigns.action, vehicle_params)
   end
 
-  defp save_vehicle(socket, :edit, vehicle_params) do
-    case Vehicles.update_vehicle(socket.assigns.vehicle, vehicle_params) do
+  defp save_vehicle(socket, :edit, params) do
+    case Vehicles.update_vehicle(socket.assigns.vehicle, params) do
       {:ok, vehicle} ->
         notify_parent({:saved, vehicle})
 
@@ -66,16 +63,26 @@ defmodule VinWeb.VehicleLive.FormComponent do
     end
   end
 
-  defp save_vehicle(socket, :new, vehicle_params) do
-    case Vehicles.create_vehicle(vehicle_params) do
-      {:ok, vehicle} ->
-        notify_parent({:saved, vehicle})
+  defp save_vehicle(socket, :new, %{"vin" => vin}) do
+    date = Date.utc_today()
 
-        {:noreply,
-         socket
-         |> put_flash(:info, "Vehicle created successfully")
-         |> push_patch(to: socket.assigns.patch)}
+    with {:ok, %{"Results" => [%{"Make" => make, "Model" => model, "ModelYear" => model_year}]}} <-
+           Vehicles.get_by_vin(vin),
+         age <- date.year - String.to_integer(model_year),
+         {:ok, vehicle} <-
+           Vehicles.create_vehicle(%{
+             "vin" => vin,
+             "make" => make,
+             "model" => model,
+             "age" => age
+           }) do
+      notify_parent({:saved, vehicle})
 
+      {:noreply,
+       socket
+       |> put_flash(:info, "Vehicle created successfully")
+       |> push_patch(to: socket.assigns.patch)}
+    else
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
     end

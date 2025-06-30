@@ -101,4 +101,13 @@ defmodule Vin.Vehicles do
   def change_vehicle(%Vehicle{} = vehicle, attrs \\ %{}) do
     Vehicle.changeset(vehicle, attrs)
   end
+
+  def get_by_vin(vin) do
+    case HTTPoison.get(
+           "https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVINValuesExtended/#{vin}?format=json"
+         ) do
+      {:ok, %{body: body}} -> Jason.decode(body)
+      _ -> {:error, :failed}
+    end
+  end
 end
